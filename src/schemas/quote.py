@@ -14,6 +14,7 @@ class ReturnQuote(BaseModel):
     content: str
     author: str
     language: Language
+    popularity: int
     created_at: datetime
 
     class Config:
