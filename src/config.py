@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str
 
     class Config:
-        env_file = ".env"
+        env_file = "quotes_api.env"
 
 
 settings = Settings()

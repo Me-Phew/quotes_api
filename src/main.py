@@ -16,7 +16,7 @@ app = FastAPI(docs_url=settings.BASE_URL + '/docs',
               title=settings.API_TITLE,
               version=settings.API_VERSION,
               description=DESCRIPTION)
-
+print(settings)
 
 app.include_router(quotes.router)
 
