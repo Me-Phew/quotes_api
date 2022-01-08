@@ -16,7 +16,7 @@ from ..utils import convert_order_by, increase_times_accessed, rename_times_acce
 from sqlalchemy_utils import escape_like
 from sqlalchemy.sql.expression import func
 
-router = APIRouter(prefix=settings.BASE_URL + '/quotes',
+router = APIRouter(prefix=settings.QUOTES_API_BASE_URL + '/quotes',
                    tags=['Quotes'])
 
 

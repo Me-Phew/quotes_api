@@ -7,7 +7,7 @@ api_key_scheme = APIKeyHeader(name='x-api-key')
 
 
 def verify_api_key(api_key: str, invalid_credentials_exception) -> bool:
-    if api_key == settings.API_KEY:
+    if api_key == settings.QUOTES_API_KEY:
         return True
     else:
         raise invalid_credentials_exception
