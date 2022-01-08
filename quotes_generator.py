@@ -1,9 +1,12 @@
-from operator import methodcaller
 from src.database import get_db
 from src import models
 
 
 def get_quotes(file_path):
+    def split_authors(item):
+        last_index = item.rfind(" – ")
+        return [item[0:last_index], item[last_index + 3:]]
+
     def stripe_nums(item):
         text = item[0]
         text = text[text.find('.') + 2:]
@@ -15,7 +18,7 @@ def get_quotes(file_path):
         quotes = quotes_file.read()
         quotes = quotes.split('\n')
         quotes = list(filter(''.__ne__, quotes))
-        quotes = list(map(methodcaller("split", " – "), quotes))
+        quotes = list(map(split_authors, quotes))
         quotes = list(map(stripe_nums, quotes))
         for quote in quotes:
             db_quote = {
@@ -31,7 +34,7 @@ def get_quotes(file_path):
 
 
 def main():
-    get_quotes('cytaty.txt')
+    get_quotes('quotes.txt')
 
 
 if __name__ == "__main__":
