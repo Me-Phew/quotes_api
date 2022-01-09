@@ -20,8 +20,7 @@ router = APIRouter(prefix=settings.QUOTES_API_BASE_URL + '/quotes',
                    tags=['Quotes'])
 
 
-@router.get('/random', response_model=ReturnQuote, dependencies=[Depends(authorize_client),
-                                                                 Depends(RateLimiter(times=10,
+@router.get('/random', response_model=ReturnQuote, dependencies=[Depends(RateLimiter(times=10,
                                                                                      seconds=1)),
                                                                  Depends(RateLimiter(times=5_000,
                                                                                      hours=1)),
@@ -43,8 +42,7 @@ def get_random_quote(db: Session = Depends(get_db)):
     return quote
 
 
-@router.get('', response_model=ReturnQuotes, dependencies=[Depends(authorize_client),
-                                                           Depends(RateLimiter(times=8,
+@router.get('', response_model=ReturnQuotes, dependencies=[Depends(RateLimiter(times=8,
                                                                                seconds=1)),
                                                            Depends(RateLimiter(times=2_000,
                                                                                hours=1)),
@@ -83,8 +81,7 @@ def get_quotes(db: Session = Depends(get_db),
             'count': len(quotes)}
 
 
-@router.get('/search', response_model=ReturnQuotes, dependencies=[Depends(authorize_client),
-                                                                  Depends(RateLimiter(times=5,
+@router.get('/search', response_model=ReturnQuotes, dependencies=[Depends(RateLimiter(times=5,
                                                                                       seconds=1)),
                                                                   Depends(RateLimiter(times=1_000,
                                                                                       hours=1)),
@@ -181,8 +178,7 @@ def search_quotes(db: Session = Depends(get_db),
             'count': len(quotes)}
 
 
-@router.get('/{quote_id}', response_model=ReturnQuote, dependencies=[Depends(authorize_client),
-                                                                     Depends(RateLimiter(times=10,
+@router.get('/{quote_id}', response_model=ReturnQuote, dependencies=[Depends(RateLimiter(times=10,
                                                                                          seconds=1)),
                                                                      Depends(RateLimiter(times=5_000,
                                                                                          hours=1)),
