@@ -51,41 +51,28 @@ def get_random_quote(db: Session = Depends(get_db)):
                                                            Depends(RateLimiter(times=8_000,
                                                                                hours=24))])
 def get_quotes(db: Session = Depends(get_db),
-               limit: Optional[int] = Query(100, gt=0, lt=100_000),
                offset: Optional[int] = Query(0, gt=-1, lt=10_000_000),
+               limit: Optional[int] = Query(100, gt=0, lt=100_000),
                order_by: Optional[SortBy] = Query(SortBy.ID),
                descending: bool = Query(False)):
-    if limit and not offset:
+
+    quotes = db.query(models.Quote)
+
+    if order_by:
         db_order_by = convert_order_by(order_by)
 
         if descending:
-            quotes = db.query(models.Quote).order_by(db_order_by.desc()).limit(limit).all()
+            quotes = quotes.order_by(db_order_by.desc())
         else:
-            quotes = db.query(models.Quote).order_by(db_order_by).limit(limit).all()
+            quotes = quotes.order_by(db_order_by)
 
-    elif offset and not limit:
-        db_order_by = convert_order_by(order_by)
+    if offset:
+        quotes = quotes.offset(offset)
 
-        if descending:
-            quotes = db.query(models.Quote).order_by(db_order_by.desc()).offset(offset).all()
-        else:
-            quotes = db.query(models.Quote).order_by(db_order_by).offset(offset).all()
+    if limit:
+        quotes = quotes.limit(limit)
 
-    elif limit and offset:
-        db_order_by = convert_order_by(order_by)
-
-        if descending:
-            quotes = db.query(models.Quote).order_by(db_order_by.desc()).offset(offset).limit(limit).all()
-        else:
-            quotes = db.query(models.Quote).order_by(db_order_by).offset(offset).limit(limit).all()
-
-    else:
-        db_order_by = convert_order_by(order_by)
-
-        if descending:
-            quotes = db.query(models.Quote).order_by(db_order_by.desc()).all()
-        else:
-            quotes = db.query(models.Quote).order_by(db_order_by).all()
+    quotes = quotes.all()
 
     quotes = list(map(increase_times_accessed, quotes))
     db.commit()
