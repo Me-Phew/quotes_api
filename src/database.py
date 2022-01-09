@@ -5,7 +5,7 @@ from .config import settings
 
 SQLALCHEMY_DATABASE_URL = f'postgresql://' \
                           f'{settings.QUOTES_API_DATABASE_USERNAME}:' \
-                          f'{settings.QUOTES_API_DATABASE_PASSWORD}@' \
+                          f'"{settings.QUOTES_API_DATABASE_PASSWORD}"@' \
                           f'{settings.QUOTES_API_DATABASE_HOSTNAME}:' \
                           f'{settings.QUOTES_API_DATABASE_PORT}/' \
                           f'{settings.QUOTES_API_DATABASE_NAME}'
