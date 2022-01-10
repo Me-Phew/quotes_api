@@ -213,6 +213,8 @@ def add_quote(quote: CreateQuote,
 
     db.refresh(db_quote)
 
+    db_quote.popularity = db_quote.times_accessed
+
     return db_quote
 
 

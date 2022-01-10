@@ -4,7 +4,7 @@ from typing import List
 from enum import Enum
 
 
-class Language(Enum):
+class Language(str, Enum):
     polish = "pl"
     english = "en"
 
