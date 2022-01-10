@@ -23,13 +23,15 @@ app.include_router(quotes.router)
 origins = [
     "http://localhost",
     "http://localhost:5500",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
     "http://127.0.0.1",
     "http://127.0.0.1:5500"
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=[*],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
