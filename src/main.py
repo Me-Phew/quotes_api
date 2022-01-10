@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from .routers import quotes
 from .config import settings
 import aioredis
@@ -16,9 +17,21 @@ app = FastAPI(docs_url=settings.QUOTES_API_BASE_URL + '/docs',
               title=settings.QUOTES_API_TITLE,
               version=settings.QUOTES_API_VERSION,
               description=DESCRIPTION)
-print(settings)
 
 app.include_router(quotes.router)
+
+origins = [
+    "http://localhost",
+    "http://localhost:5500",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.on_event("startup")
