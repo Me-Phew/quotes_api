@@ -7,7 +7,7 @@ from .database import Base
 class Quote(Base):
     __tablename__ = 'quotes'
     id = Column(Integer, primary_key=True, nullable=False)
-    content = Column(String, nullable=False)
+    content = Column(String, nullable=False, unique=True)
     author = Column(String, nullable=False)
     language = Column(String, nullable=False)
     times_accessed = Column(Integer, nullable=False, server_default=text('0'))

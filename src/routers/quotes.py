@@ -15,6 +15,7 @@ from ..schemas.sort import SortBy
 from ..utils import convert_order_by, increase_times_accessed, rename_times_accessed
 from sqlalchemy_utils import escape_like
 from sqlalchemy.sql.expression import func
+from sqlalchemy.exc import IntegrityError
 
 router = APIRouter(prefix=settings.QUOTES_API_BASE_URL + '/quotes',
                    tags=['Quotes'])
@@ -53,7 +54,6 @@ def get_quotes(db: Session = Depends(get_db),
                limit: Optional[int] = Query(100, gt=0, lt=100_000),
                order_by: Optional[SortBy] = Query(SortBy.ID),
                descending: bool = Query(False)):
-
     quotes = db.query(models.Quote)
 
     if order_by:
@@ -208,7 +208,11 @@ def add_quote(quote: CreateQuote,
 
     db.add(db_quote)
 
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail=f'quote with this content already exists')
 
     db.refresh(db_quote)
 
@@ -234,7 +238,11 @@ def add_quotes(quotes: CreateQuotes,
     db_quotes = list(map(create_db_quote, quotes))
     map(db.add, db_quotes)
 
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail=f'quote with this content already exists')
 
     map(db.refresh, db_quotes)
     db_quotes = list(map(rename_times_accessed, quotes))
