@@ -166,7 +166,6 @@ def search_quotes(db: Session = Depends(get_db),
     if offset:
         quotes = quotes.offset(offset)
 
-    print(quotes)
     quotes = quotes.all()
 
     quotes = list(map(increase_times_accessed, quotes))
@@ -238,6 +237,7 @@ def add_quotes(quotes: CreateQuotes,
     db.commit()
 
     map(db.refresh, db_quotes)
+    db_quotes = list(map(rename_times_accessed, quotes))
 
     return {'quotes': db_quotes,
             'count': len(db_quotes)}
