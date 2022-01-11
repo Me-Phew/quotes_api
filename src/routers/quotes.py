@@ -245,7 +245,7 @@ def add_quotes(quotes: CreateQuotes,
                             detail=f'quote with this content already exists')
 
     map(db.refresh, db_quotes)
-    db_quotes = list(map(rename_times_accessed, quotes))
+    db_quotes = list(map(rename_times_accessed, db_quotes))
 
     return {'quotes': db_quotes,
             'count': len(db_quotes)}
