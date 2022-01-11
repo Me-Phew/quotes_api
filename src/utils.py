@@ -33,3 +33,7 @@ def rename_times_accessed(quote):
 
 def create_db_quote(quote):
     return models.Quote(**quote)
+
+
+def listify_quote_ids(item):
+    return item['id']

@@ -1,9 +1,12 @@
 import random
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, Path, Query, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
 from pydantic import Required
-from sqlalchemy.orm import Session, load_only
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
+from sqlalchemy.sql.expression import func
+from sqlalchemy_utils import escape_like
 
 from fastapi_limiter.depends import RateLimiter
 from .. import models
@@ -12,26 +15,27 @@ from ..config import settings
 from ..database import get_db
 from ..schemas.quote import CreateQuote, CreateQuotes, Language, ReturnQuote, ReturnQuotes
 from ..schemas.sort import SortBy
-from ..utils import convert_order_by, increase_times_accessed, rename_times_accessed, create_db_quote
-from sqlalchemy_utils import escape_like
-from sqlalchemy.sql.expression import func, column
-from sqlalchemy.exc import IntegrityError
+from ..utils import convert_order_by, create_db_quote, increase_times_accessed, listify_quote_ids, \
+    rename_times_accessed
 
 router = APIRouter(prefix=settings.QUOTES_API_BASE_URL + '/quotes',
                    tags=['Quotes'])
 
 
 @router.get('/random', dependencies=[Depends(RateLimiter(times=10,
-                                                                                     seconds=1)),
-                                                                 Depends(RateLimiter(times=5_000,
-                                                                                     hours=1)),
-                                                                 Depends(RateLimiter(times=20_000,
-                                                                                     hours=24))])
-def get_random_quote(db: Session = Depends(get_db)):
-    quote_ids = db.query(models.Quote.id).all()
-    
-    def listify_quote_ids(item):
-        return item['id']
+                                                         seconds=1)),
+                                     Depends(RateLimiter(times=5_000,
+                                                         hours=1)),
+                                     Depends(RateLimiter(times=20_000,
+                                                         hours=24))])
+def get_random_quote(db: Session = Depends(get_db),
+                     language: Optional[Language] = Query(None)):
+    quote_ids = db.query(models.Quote.id)
+
+    if language:
+        quote_ids = quote_ids.filter(models.Quote.language == language.value)
+
+    quote_ids = quote_ids.all()
 
     quote_ids = list(map(listify_quote_ids, quote_ids))
 
@@ -234,11 +238,10 @@ def add_quote(quote: CreateQuote,
                                                                                           hours=24))])
 def add_quotes(quotes: CreateQuotes,
                db: Session = Depends(get_db)):
-
     quotes = quotes.dict().get('quotes')
 
     db_quotes = list(map(create_db_quote, quotes))
-    
+
     for quote in db_quotes:
         db.add(quote)
 
