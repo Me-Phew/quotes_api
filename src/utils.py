@@ -29,3 +29,7 @@ def increase_times_accessed(quote):
 def rename_times_accessed(quote):
     quote.popularity = quote.times_accessed
     return quote
+
+
+def create_db_quote(quote):
+    return models.Quote(**quote)

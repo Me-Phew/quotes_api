@@ -12,7 +12,7 @@ from ..config import settings
 from ..database import get_db
 from ..schemas.quote import CreateQuote, CreateQuotes, Language, ReturnQuote, ReturnQuotes
 from ..schemas.sort import SortBy
-from ..utils import convert_order_by, increase_times_accessed, rename_times_accessed
+from ..utils import convert_order_by, increase_times_accessed, rename_times_accessed, create_db_quote
 from sqlalchemy_utils import escape_like
 from sqlalchemy.sql.expression import func
 from sqlalchemy.exc import IntegrityError
@@ -28,10 +28,9 @@ router = APIRouter(prefix=settings.QUOTES_API_BASE_URL + '/quotes',
                                                                  Depends(RateLimiter(times=20_000,
                                                                                      hours=24))])
 def get_random_quote(db: Session = Depends(get_db)):
-    min_id = db.query(models.Quote).order_by(models.Quote.id).first().id
-    max_id = db.query(models.Quote).order_by(models.Quote.id.desc()).first().id
+    ids = db.query(models.Quote.id).all()
 
-    quote_id = random.randint(min_id, max_id)
+    quote_id = random.choice(ids)
 
     quote = db.query(models.Quote).filter(models.Quote.id == quote_id).first()
 
@@ -230,10 +229,8 @@ def add_quote(quote: CreateQuote,
                                                                                           hours=24))])
 def add_quotes(quotes: CreateQuotes,
                db: Session = Depends(get_db)):
-    quotes = quotes.dict().get('quotes')
 
-    def create_db_quote(quote):
-        return models.Quote(**quote)
+    quotes = quotes.dict().get('quotes')
 
     db_quotes = list(map(create_db_quote, quotes))
     
