@@ -236,16 +236,19 @@ def add_quotes(quotes: CreateQuotes,
         return models.Quote(**quote)
 
     db_quotes = list(map(create_db_quote, quotes))
-    map(db.add, db_quotes)
+    
+    for quote in db_quotes:
+        db.add(quote)
 
     try:
         db.commit()
     except IntegrityError:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail=f'quote with this content already exists')
-
+    print(db_quotes)
     map(db.refresh, db_quotes)
+    print(db_quotes)
     db_quotes = list(map(rename_times_accessed, db_quotes))
-
+    print(db_quotes)
     return {'quotes': db_quotes,
             'count': len(db_quotes)}
