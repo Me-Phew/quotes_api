@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Path, Query, HTTPException, status
 from pydantic import Required
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, load_only
 
 from fastapi_limiter.depends import RateLimiter
 from .. import models
@@ -14,23 +14,28 @@ from ..schemas.quote import CreateQuote, CreateQuotes, Language, ReturnQuote, Re
 from ..schemas.sort import SortBy
 from ..utils import convert_order_by, increase_times_accessed, rename_times_accessed, create_db_quote
 from sqlalchemy_utils import escape_like
-from sqlalchemy.sql.expression import func
+from sqlalchemy.sql.expression import func, column
 from sqlalchemy.exc import IntegrityError
 
 router = APIRouter(prefix=settings.QUOTES_API_BASE_URL + '/quotes',
                    tags=['Quotes'])
 
 
-@router.get('/random', response_model=ReturnQuote, dependencies=[Depends(RateLimiter(times=10,
+@router.get('/random', dependencies=[Depends(RateLimiter(times=10,
                                                                                      seconds=1)),
                                                                  Depends(RateLimiter(times=5_000,
                                                                                      hours=1)),
                                                                  Depends(RateLimiter(times=20_000,
                                                                                      hours=24))])
 def get_random_quote(db: Session = Depends(get_db)):
-    ids = db.query(models.Quote.id).all()
+    quote_ids = db.query(models.Quote.id).all()
+    
+    def listify_quote_ids(item):
+        return item['id']
 
-    quote_id = random.choice(ids)
+    quote_ids = list(map(listify_quote_ids, quote_ids))
+
+    quote_id = random.choice(quote_ids)
 
     quote = db.query(models.Quote).filter(models.Quote.id == quote_id).first()
 
