@@ -22,7 +22,7 @@ router = APIRouter(prefix=settings.QUOTES_API_BASE_URL + '/quotes',
                    tags=['Quotes'])
 
 
-@router.get('/random', dependencies=[Depends(RateLimiter(times=10,
+@router.get('/random', response_model=ReturnQuote, dependencies=[Depends(RateLimiter(times=10,
                                                          seconds=1)),
                                      Depends(RateLimiter(times=5_000,
                                                          hours=1)),
