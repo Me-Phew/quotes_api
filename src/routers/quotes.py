@@ -133,17 +133,20 @@ def search_quotes(db: Session = Depends(get_db),
 
         quotes = db.query(models.Quote).filter(models.Quote.author == author_equal_cs)
 
+    if not quotes:
+        quotes = db.query(models.Quote)
+
     if includes_keywords_ci:
         if includes_keywords_cs:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
         keywords_ci = ' '.join(includes_keywords_ci)
 
-        quotes = db.query(models.Quote).filter(models.Quote.content.ilike(f'%{escape_like(keywords_ci)}%'))
+        quotes = quotes.filter(models.Quote.content.ilike(f'%{escape_like(keywords_ci)}%'))
     elif includes_keywords_cs:
         keywords_cs = ' '.join(includes_keywords_cs)
 
-        quotes = db.query(models.Quote).filter(models.Quote.content.like(f'%{escape_like(keywords_cs)}%'))
+        quotes = quotes(models.Quote).filter(models.Quote.content.like(f'%{escape_like(keywords_cs)}%'))
 
     if not quotes:
         quotes = db.query(models.Quote)
