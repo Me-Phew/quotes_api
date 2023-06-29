@@ -21,7 +21,7 @@ app = FastAPI(docs_url=settings.QUOTES_API_BASE_URL + '/docs',
 app.include_router(quotes.router)
 
 ALLOWED_ORIGINS = [
-    "https://mephew-quotes.netlify.app/",
+    "https://mephew-quotes.netlify.app",
 ]
 
 app.add_middleware(
