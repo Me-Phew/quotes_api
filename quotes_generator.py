@@ -14,13 +14,15 @@ def get_quotes(file_path):
 
     db = next(get_db())
 
+    quotes_list = []
     with open(file_path, 'r', encoding='utf-8') as quotes_file:
         quotes = quotes_file.read()
         quotes = quotes.split('\n')
-        quotes = list(filter(''.__ne__, quotes))
+        quotes = [quote for quote in quotes if quote]
         quotes = list(map(split_authors, quotes))
         quotes = list(map(stripe_nums, quotes))
         for quote in quotes:
+
             db_quote = {
                 'content': quote[0],
                 'author': quote[1],
@@ -29,8 +31,11 @@ def get_quotes(file_path):
 
             db_quote = models.Quote(**db_quote)
 
-            db.add(db_quote)
+            quotes_list.append(db_quote)
+
+        db.add_all(quotes_list)
         db.commit()
+        print(f'Added {len(quotes)} quotes')
 
 
 def main():
